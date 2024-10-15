@@ -7,5 +7,6 @@ router.get(`/`, (req, res) => {
 });
 router.get(`/customers`, ConsumerController.getAll);
 router.get(`/customers/gender`, ConsumerController.getGenderData);
+router.get(`/customers/age`, ConsumerController.getAgeDistribution);
 
 module.exports = router;

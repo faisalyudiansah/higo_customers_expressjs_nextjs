@@ -48,4 +48,32 @@ module.exports = class ConsumerController {
             next(error);
         }
     }
+
+    static async getAgeDistribution(req, res, next) {
+        try {
+            const ageGroups = [
+                { range: "0-20", count: 0 },
+                { range: "21-40", count: 0 },
+                { range: "41-60", count: 0 },
+                { range: "61+", count: 0 },
+            ];
+            const customers = await db.collection(COLLECTION_NAME).find({}).toArray();
+            customers.forEach(customer => {
+                const age = customer.age;
+                if (age <= 20) {
+                    ageGroups[0].count++;
+                } else if (age <= 40) {
+                    ageGroups[1].count++;
+                } else if (age <= 60) {
+                    ageGroups[2].count++;
+                } else {
+                    ageGroups[3].count++;
+                }
+            });
+            res.status(200).json(ageGroups);
+        } catch (error) {
+            console.log(error);
+            next(error);
+        }
+    }
 };
