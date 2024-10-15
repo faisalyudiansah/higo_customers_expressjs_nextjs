@@ -2,6 +2,7 @@ const fs = require('fs');
 const csv = require('csv-parser');
 let { db, client } = require("../configs/db");
 const { DATABASE_NAME, COLLECTION_NAME, CSV_FILE_PATH } = require('../constants/configConstants');
+const { validateCustomer } = require('../models/costumers');
 
 async function seedData() {
     try {
@@ -11,7 +12,7 @@ async function seedData() {
         await insertCustomers(customers);
         console.log('Seeding completed successfully');
     } catch (error) {
-        console.error('Error during seeding:', error);
+        console.error('Error during seeding:', error.message);
     } finally {
         await client.close();
     }
@@ -39,7 +40,6 @@ async function checkOrCreateCollection() {
     await db.createCollection(COLLECTION_NAME);
 }
 
-
 function readCustomersFromCSV() {
     return new Promise((resolve, reject) => {
         const customers = [];
@@ -48,7 +48,7 @@ function readCustomersFromCSV() {
             .on('data', (row) => {
                 customers.push({
                     customerID: parseInt(row.CustomerID),
-                    gender: row.Gender,  
+                    gender: row.Gender,
                     age: parseInt(row.Age),
                     annual_income: parseFloat(row["Annual Income ($)"]),
                     spending_score: parseFloat(row["Spending Score (1-100)"]),
@@ -64,6 +64,13 @@ function readCustomersFromCSV() {
 
 async function insertCustomers(customers) {
     if (customers.length > 0) {
+        for (const customer of customers) {
+            try {
+                validateCustomer(customer);
+            } catch (error) {
+                throw new Error(`Validation error for customer ${JSON.stringify(customer)}: ${error.message}`);
+            }
+        }
         await db.collection(COLLECTION_NAME).insertMany(customers);
     } else {
         console.log('No customers found in CSV to insert.');
