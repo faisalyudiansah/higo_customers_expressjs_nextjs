@@ -46,7 +46,7 @@ export function ChartGender() {
                 const formattedData: ChartData[] = data.map((item) => ({
                     browser: item.gender,
                     visitors: item.count,
-                    fill: item.gender === "Female" ? "var(--color-female)" : "var(--color-male)", // Adjust the color variable as needed
+                    fill: item.gender === "Female" ? "var(--color-female)" : "var(--color-male)", 
                 }));
                 setChartData(formattedData);
                 const total = data.reduce((acc, item) => acc + item.count, 0);
