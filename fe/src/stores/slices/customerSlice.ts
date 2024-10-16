@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { Dispatch } from 'redux';
 import { GenderData } from '@/types/genderData';
 import { AgeData } from '@/types/ageData';
+import { CustomersResponse } from '@/types/dataCustomers';
 
 interface AuthState {
     genderData: GenderData[] | null
@@ -10,6 +11,9 @@ interface AuthState {
     ageData: AgeData[] | null
     ageError: string | null
     ageLoading: boolean
+    customerData: CustomersResponse | null
+    customerError: string | null
+    customerLoading: boolean
 }
 
 const initialState: AuthState = {
@@ -19,6 +23,9 @@ const initialState: AuthState = {
     ageData: null,
     ageError: null,
     ageLoading: true,
+    customerData: null,
+    customerError: null,
+    customerLoading: true,
 };
 
 export const customerSlice = createSlice({
@@ -31,6 +38,9 @@ export const customerSlice = createSlice({
         setAgeData: (state, action) => { state.ageData = action.payload; },
         setAgeError: (state, action) => { state.ageError = action.payload; },
         setAgeLoading: (state, action) => { state.ageLoading = action.payload; },
+        setCustomerData: (state, action) => { state.customerData = action.payload; },
+        setCustomerError: (state, action) => { state.customerError = action.payload; },
+        setCustomerLoading: (state, action) => { state.customerLoading = action.payload; },
     },
 });
 
@@ -41,7 +51,32 @@ export const {
     setAgeData,
     setAgeError,
     setAgeLoading,
+    setCustomerData,
+    setCustomerError,
+    setCustomerLoading,
 } = customerSlice.actions;
+
+export const fetchCustomerDataAPI = (page = 1, limit = 5, search : string) => async (dispatch: Dispatch): Promise<void> => {
+    try {
+        dispatch(setCustomerLoading(true))
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/customers?page=${page}&limit=${limit}&q=${search}`);
+        if (!response.ok) {
+            const errorResponse = await response.json();
+            throw new Error(errorResponse.message || 'Failed to fetch Customer data');
+        }
+        const data: CustomersResponse = await response.json();
+        dispatch(setCustomerData(data))
+    } catch (error) {
+        if (error instanceof Error) {
+            dispatch(setCustomerError(error.message || 'An unexpected error occurred'));
+        } else {
+            dispatch(setCustomerError('An unexpected error occurred'));
+        }
+        throw error
+    } finally {
+        dispatch(setCustomerLoading(false))
+    }
+};
 
 export const fetchGenderDataAPI = () => async (dispatch: Dispatch): Promise<void> => {
     try {
