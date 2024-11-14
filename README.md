@@ -1,5 +1,5 @@
 # higo_customers_expressjs_nextjs
-summary data from Customer dataset with express js, mongodb, and next js with Redux
+summary data from Customer dataset with express js, mongodb, and next js with Redux, shadcn ui, and aceternity ui
 
 ## Backend
 - `cd be/`
